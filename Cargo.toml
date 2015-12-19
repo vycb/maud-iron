@@ -1,0 +1,13 @@
+[package]
+
+name = "maud-iron"
+version = "0.0.1"
+authors = [ "vycb <vycb777@gmail.com>" ]
+license = "MIT"
+readme = "README.md"
+plugin = true
+
+[dependencies]
+iron = { version = "*", default-features = false }
+maud = /home/projects/maud/maud
+maud_macros = /home/projects/maud/maud_macros
