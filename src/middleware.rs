@@ -53,16 +53,13 @@ impl Template {
 	}
 }
 
-pub struct MaudEngine{
-	pub sources: Template,
-}
+pub struct MaudEngine;
 
 impl MaudEngine{
 	
-	pub fn new(source: Template) -> MaudEngine {
-			MaudEngine{
-				sources: source
-			}
+	pub fn new() -> MaudEngine {
+			MaudEngine
+			
 	}
 	
 	pub fn render(value: &str) -> Result<String, RenderError> {
