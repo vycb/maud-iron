@@ -8,7 +8,8 @@ readme = "README.md"
 
 [dependencies]
 iron = { version = "*", default-features = false }
-maud = "*"
-maud_macros = "*"
 plugin = "*"
 log = "*"
+
+[features]
+default = []

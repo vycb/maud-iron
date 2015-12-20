@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::fmt;
 use std::error;
-use std::io::Write;
 use std::io::Error as IOError;
 use iron::prelude::*;
 use iron::{status};
@@ -47,7 +46,7 @@ pub struct Template{
 }
 
 impl Template {
-	pub fn new(value: &str) -> Template {
+	pub fn new<T: ToString>(value: T) -> Template {
 		Template {
 			value: value.to_string()
 		}
@@ -55,23 +54,19 @@ impl Template {
 }
 
 pub struct MaudEngine{
-	pub sources: Box<Template>
+	pub sources: Template,
 }
 
 impl MaudEngine{
 	
-	pub fn new(val: String) -> MaudEngine {
-    MaudEngine{
-			sources: Box::new ( Template{value: val} )
-    }
+	pub fn new(source: Template) -> MaudEngine {
+			MaudEngine{
+				sources: source
+			}
 	}
 	
-//	pub fn add(&mut self, source: Template) {
-//    self.sources = source;
-//	}
-	
-	pub fn render<T>(value: T) -> Result<T, RenderError> {
-		Ok( value )
+	pub fn render(value: &str) -> Result<String, RenderError> {
+		Ok( value.to_string())
 	}
 	
 }
@@ -102,8 +97,8 @@ impl AfterMiddleware for MaudEngine {
     fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
         let mut resp = r;
         let page_wrapper = resp.extensions.get::<MaudEngine>().as_ref()
-            .and_then(|tpl| {
-                Some(MaudEngine::render(tpl.value.as_bytes()))
+            .and_then(|t| {
+                Some(MaudEngine::render(&t.value))
             });
 
         match page_wrapper {
@@ -113,7 +108,7 @@ impl AfterMiddleware for MaudEngine {
                         if !resp.headers.has::<ContentType>() {
                             resp.headers.set(ContentType::html());
                         }
-                        resp.set_mut(page);
+                        resp.set_mut(page );
                         Ok(resp)
                     }
                     Err(e) => {
@@ -131,7 +126,6 @@ impl AfterMiddleware for MaudEngine {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
     use iron::prelude::*;
     use middleware::*;
 
@@ -145,10 +139,10 @@ mod test {
     fn test_resp_set() {
         let mut resp = hello_world().ok().expect("response expected");
 
-        // use response plugin to retrieve a cloned template for testing
         match resp.get::<MaudEngine>() {
             Ok(h) => {
-                assert_eq!(h.value,
+               assert_eq!(
+               						h.value.to_string(),
                            "Maud on Iron");
             },
             _ => panic!("template expected")
